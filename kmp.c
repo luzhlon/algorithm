@@ -4,36 +4,43 @@
 #define MAX_STRING_LENGTH 2048
 
 void get_jump_table(char *p, int plen, int *table) {
-    table[0] = 0;
-    table[1] = 0;
-    for (int i = 2; i < plen; i++) {
-        int j = 1;
-        int k = 0;
-        for(; j < i; j++) {
-            int e = i - j;
-            for(k = 0; k < e; k++)
-                if (p[j+k] != p[k])
-                    break;
-            if(k == e) {
-                table[i] = e;
-                break;
-            }
+    table[0] = -1;
+    if (plen < 2)
+        return;
+    int i = 0, j = -1;
+    while (i < plen)
+        if (j == -1 || p[i] == p[j]) {
+            ++i; ++j;
+            table[i] = j;
         }
-        if(j == i)
-            table[i] = 0;
-    }
+        else
+            j = table[j];
 }
 
+/**
+ * 查找模式串p在主串m中第一次出现的位置
+ */
 int find(char *m, int mlen, char *p, int plen) {
     int table[MAX_STRING_LENGTH];
     get_jump_table(p, plen, table);
+
+    for(int i = 0; i < plen; i++)
+        printf("%c ", p[i]);
+    printf("\n");
+    // print the jump table
+    for(int i = 0; i < plen; i++)
+        printf("%d ", table[i]);
+    printf("\n");
+
     int i = 0, j = 0;
-    while (i < mlen && j < plen) {
-        if (j == 0 || m[i] == p[j])
+    while (i < mlen && j < plen)
+        if (m[i] == p[j])
             i++, j++;
+        else if (j == 0)   // 如果才比到模式串的第一个字符，就只移动主串指针
+            i++;
         else
             j = table[j];
-    }
+
     if (j == plen)
         return i - plen;
     else
@@ -41,8 +48,10 @@ int find(char *m, int mlen, char *p, int plen) {
 }
 
 int main(int argc, const char *argv[]) {
-    char *m = "ababcabcacbab";
-    char *p = "abcac";
+    char m[MAX_STRING_LENGTH];
+    char p[MAX_STRING_LENGTH];
+    gets(m);
+    gets(p);
     printf("%d\n", find(m, strlen(m), p, strlen(p)));
     return 0;
 }
