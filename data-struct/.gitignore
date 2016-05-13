@@ -1,0 +1,5 @@
+Debug/
+Release/
+*.autosave
+a.out
+Session.vim
